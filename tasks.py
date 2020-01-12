@@ -1,13 +1,9 @@
-from pyspark import sql, SparkConf, SparkContext
 from pyspark.sql.functions import (month, mean, max, min,
                                    count, dayofmonth, desc, col)
 import os
+from config import sqlContext, data_file
 
-conf = SparkConf().setAppName("app_task")
-sc = SparkContext(conf=conf)
-sqlContext = sql.SQLContext(sc)
-
-df = sqlContext.read.csv(os.path.abspath('temperature_city.csv'), header=True)
+df = sqlContext.read.csv(os.path.abspath(data_file), header=True)
 
 
 def first_task():
