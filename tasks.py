@@ -63,18 +63,24 @@ def third_task():
                          .groupby(df.City.alias('cmd_city'),
                                   month('date').alias('cmd_month'),
                                   dayofmonth('date').alias('cmd_day'))
-                         .agg(mean('temperature').alias('cmd_mean')))
+                         .agg(mean('temperature').alias('cmd_mean'),
+                              max('temperature').alias('cmd_max'),
+                              min('temperature').alias('cmd_min')))
 
     first_task_answer_df = (df
                             .groupby('City', month('date').alias('month'))
-                            .agg(mean('temperature').alias('mean')))
+                            .agg(mean('temperature').alias('mean'),
+                                 max('temperature').alias('max'),
+                                 min('temperature').alias('min')))
 
     answer = city_month_day_df.join(first_task_answer_df,
                                     (city_month_day_df.cmd_month == first_task_answer_df.month)
                                     & (city_month_day_df.cmd_city == first_task_answer_df.City))
-    answer = answer.withColumn('diff', answer.cmd_mean - answer.mean)
+    answer = answer.withColumn('diff_mean', answer.cmd_mean - answer.mean)
+    answer = answer.withColumn('diff_max', answer.cmd_max - answer.max)
+    answer = answer.withColumn('diff_min', answer.cmd_min - answer.min)
 
-    columns_to_delete = ['City', 'month']
+    columns_to_delete = ['City', 'month', 'cmd']
     answer = answer.drop(*columns_to_delete)
 
     pandas_df = answer.toPandas()
